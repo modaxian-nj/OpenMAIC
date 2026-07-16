@@ -194,6 +194,12 @@ export async function POST(req: NextRequest) {
 
     log.info(`Content generated successfully: "${effectiveOutline.title}"`);
 
+    // DIAG(temp): response payload size to locate the frontend retry loop
+    const _diag = content as { type?: string; html?: string };
+    log.info(
+      `[DIAG] type=${_diag.type ?? 'unknown'} htmlLen=${_diag.html?.length ?? -1} jsonLen=${JSON.stringify(content).length}`,
+    );
+
     return apiSuccess({ content, effectiveOutline });
   } catch (error) {
     log.error(

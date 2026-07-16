@@ -243,7 +243,14 @@ function injectProviderOptions<T extends GenerateTextParams | StreamTextParams>(
   params: T,
   thinking?: ThinkingConfig,
 ): T {
-  if ((params as Record<string, unknown>).providerOptions) return params; // caller explicitly set providerOptions
+  // LOCAL PATCH: raise default maxOutputTokens to 16384. OpenMAIC never sets
+  // maxOutputTokens on any call, so the SDK default (4096) truncates long
+  // outputs like game/interactive HTML — extractHtml then can't find a closed
+  // </html> and scene generation fails. See CLAUDE.md §3.
+  const p = params as Record<string, unknown>;
+  if (!p.maxOutputTokens) p.maxOutputTokens = 16384;
+
+  if (p.providerOptions) return params; // caller explicitly set providerOptions
 
   const modelId = getModelId(params);
   const providerId = getModelProviderId(params);

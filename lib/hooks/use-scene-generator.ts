@@ -156,6 +156,16 @@ export async function fetchSceneContent(
         });
 
         const data = await readJsonResponse(response);
+        // DIAG(temp): inspect actual response shape to locate the retry loop
+        const _d = data as Record<string, unknown>;
+        const _dc = _d.content as { type?: string; html?: string } | undefined;
+        console.warn('[DIAG scene-content]', response.status, {
+          success: _d.success,
+          hasContent: 'content' in _d,
+          contentType: _dc?.type,
+          htmlLen: _dc?.html?.length,
+          error: _d.error,
+        });
         if (!response.ok) {
           throw createHttpError(response, data, 'Scene content request failed');
         }
